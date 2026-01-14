@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from blogapp.views import search_vuln
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blogapp.urls')),
+    path("search_vuln/",search_vuln, name="search_vuln"),
 ]

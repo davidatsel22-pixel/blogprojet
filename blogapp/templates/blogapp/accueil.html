@@ -11,6 +11,24 @@
    {% endif %} 
  
    <h2>Nos derniers articles :</h2> 
+
+   <h3>Recherche </h3>
+    <form action="{% url 'blogapp:search_vuln' %}" method="get">
+        <input type="text" name="q" placeholder="Rechercher titre">
+        <button type="submit">Rechercher</button>
+    </form>
+    <hr>
+    {% if query %}
+        <p>Résultats pour : {{ query }}</p>
+        <ul>
+        {% for row in rows %}
+            <li>{{ row.1 }} (id: {{ row.0 }})</li>
+        {% empty %}
+            <li>Aucun résultat</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
    {% if articles_a_afficher %} {# On utilise la nouvelle variable passée par la vue #} 
        <ul class="article-list"> 
            {% for article_item in articles_a_afficher %} {# On boucle sur les articles de la page actuelle #} 
@@ -19,7 +37,7 @@
                    <p class="article-meta"> 
                        Par : <a href="{% url 'blogapp:profil_utilisateur' username=article_item.auteur.username %}">{{ article_item.auteur.username }}</a> | Publié le : {{ article_item.date_creation|date:"d M Y, H:i" }} 
                    </p> 
-                   <p>{{ article_item.contenu|truncatewords:30 }}</p>
+                   <p>{{ article_item.contenu|safe }}</p>
                    </li> 
            {% endfor %} 
        </ul> 

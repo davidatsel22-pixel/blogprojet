@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout
+from django.db import connection
 # Create your views here.
  
 
@@ -163,13 +164,31 @@ def ajouter_commentaire_view(request, article_pk): # article_pk est l'ID de l'ar
        # Si on accède à cette URL en GET, on redirige simplement vers l'article. 
        return redirect('blogapp:detail_article', pk=article.pk)
    
-def profil_utilisateur_view(request, username): 
-    # Récupère l'utilisateur par son nom d'utilisateur ou renvoie une erreur 404 
-    utilisateur_profil = get_object_or_404(User, username=username) 
-    # Récupère tous les articles écrits par cet utilisateur, triés par date de création 
-    articles_utilisateur = Article.objects.filter(auteur=utilisateur_profil).order_by('-date_creation') 
-    context = { 
-    'utilisateur_profil': utilisateur_profil, 
-    'articles_utilisateur': articles_utilisateur, 
-    } 
-    return render(request, 'blogapp/profil_utilisateur.html', context)   
+def profil_utilisateur(request, username):
+    cursor = connection.cursor()
+
+    sql = (
+        "SELECT auth_user.id, auth_user.username, blogapp_article.titre "
+        "FROM auth_user "
+        "LEFT JOIN blogapp_article "
+        "ON auth_user.id = blogapp_article.auteur_id "
+        "WHERE auth_user.username = '" + username + "'"
+    )
+
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+
+    return render(
+        request,
+        'blogapp/profil_utilisateur.html',
+        {'rows': rows, 'username': username}
+    ) 
+
+def search_vuln(request):
+    q = request.GET.get("q", "")
+    cursor = connection.cursor()
+    # Code volontairement vulnérable, concaténation directe
+    sql = "SELECT * FROM blogapp_article WHERE titre LIKE '%" + q + "%';"
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    return render(request, "blogapp/search_vuln.html", {"rows": rows, "query": q})

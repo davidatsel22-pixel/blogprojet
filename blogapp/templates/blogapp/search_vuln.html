@@ -1,0 +1,21 @@
+{% extends "base.html" %} 
+{% block title %}Recherche vulnérable - Mon Super Blog{% endblock %}
+{% block content %}
+
+    <h1>Recherche vulnérable</h1>
+    <form action="" method="get">
+        <input type="text" name="q" placeholder="Rechercher titre">
+        <button type="submit">Rechercher</button>
+    </form>
+    <hr>
+    {% if query %}
+        <p>Résultats pour : {{ query }}</p>
+        <ul>
+        {% for row in rows %}
+            <li>{{ row.1 }} (id: {{ row.0 }})</li>
+        {% empty %}
+            <li>Aucun résultat</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
